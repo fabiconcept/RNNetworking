@@ -1,74 +1,96 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useEffect, useState } from 'react'
+import { View, Text, StyleSheet, FlatList } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+const API_URL ="https://jsonplaceholder.typicode.com/posts?"
+interface Post {
+  id: number,
+  title: string,
+  body: string,
+  userId: number
 }
 
+export default function index() {
+  const [postList, setPostList] = useState<Post[]>([])
+
+  const fetchData = async (limit: number = 10) => {
+    const response = await fetch(`${API_URL}_limit=${limit}`);
+
+    const data = await response.json() as Post[];
+    setPostList(data);
+  }
+
+  useEffect(() => {
+    fetchData(10)
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View>
+        <FlatList
+          data={postList}
+          renderItem={({ item }) => (
+            <View key={item.id} style={styles.card}>
+              <Text style={styles.titleText}>{item.title}</Text>
+              <Text style={styles.bodyText}>{item.body}</Text>
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          ListHeaderComponent={() => <Text style={styles.headerText}>
+            Posts List
+          </Text>}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ListEmptyComponent={()=> <Text style={styles.emptyListText}>No posts found</Text>}
+          ListFooterComponent={() => <Text style={styles.footerText}>End of posts</Text>}
+        />
+      </View>
+    </SafeAreaView>
+  )
+}
+
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    paddingHorizontal: 5,
+    backgroundColor: 'plum',
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  listContainer: {
+    flex: 1,
+    paddingHorizontal: 16
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  card: {
+    backgroundColor: 'white',
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
   },
-});
+  titleText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  bodyText: {
+    fontSize: 16,
+    color: 'gray',
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'blue',
+    padding: 10
+  },
+  separator: {
+    height: 10,
+  },
+  emptyListText: {
+    fontSize: 16,
+    color: 'gray',
+    padding: 10
+  },
+  footerText: {
+    fontSize: 16,
+    color: 'gray',
+    padding: 10,
+    textAlign: 'center'
+  }
+})
