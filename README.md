@@ -4,3 +4,6 @@
 - Part 66 : Networking ✅
 - Part 67 : Get Requests ✅
 - Part 68 : Loading State ✅
+- Part 69 : Pull to Refresh ✅
+- Part 70 : Post Request ✅
+- Part 71 : Error Handling ✅

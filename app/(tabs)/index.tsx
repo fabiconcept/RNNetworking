@@ -1,96 +1,115 @@
-import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, FlatList } from 'react-native'
+import { API_URL } from '@/lib';
+import { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, Button, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-const API_URL ="https://jsonplaceholder.typicode.com/posts?"
-interface Post {
-  id: number,
-  title: string,
-  body: string,
-  userId: number
-}
+export default function explore() {
+  const [postTitle, setPostTitle] = useState('');
+  const [postBody, setPostBody] = useState('');
+  const [isPosting, setIsPosting] = useState(false);
 
-export default function index() {
-  const [postList, setPostList] = useState<Post[]>([])
+  const handleAddPost = async () => {
+    setIsPosting(true);
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title: postTitle, body: postBody }),
+      });
 
-  const fetchData = async (limit: number = 10) => {
-    const response = await fetch(`${API_URL}_limit=${limit}`);
-
-    const data = await response.json() as Post[];
-    setPostList(data);
+      const data = await response.json();
+    } catch (error) {
+      console.error(error);
+    }
   }
-
-  useEffect(() => {
-    fetchData(10)
-  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <View>
-        <FlatList
-          data={postList}
-          renderItem={({ item }) => (
-            <View key={item.id} style={styles.card}>
-              <Text style={styles.titleText}>{item.title}</Text>
-              <Text style={styles.bodyText}>{item.body}</Text>
-            </View>
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          ListHeaderComponent={() => <Text style={styles.headerText}>
-            Posts List
-          </Text>}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          ListEmptyComponent={()=> <Text style={styles.emptyListText}>No posts found</Text>}
-          ListFooterComponent={() => <Text style={styles.footerText}>End of posts</Text>}
+      <Text style={styles.title}>Create a new post</Text>
+      <View style={styles.form}>
+        <View>
+          <Text style={styles.label}>Post Title:</Text>
+          <TextInput
+            style={[styles.input]}
+            placeholder="Enter a title"
+            value={postTitle}
+            onChangeText={(text) => setPostTitle(text)}
+          />
+        </View>
+        <View>
+          <Text style={styles.label}>Post Body:</Text>
+          <TextInput
+            style={[styles.input, styles.multilineInput]}
+            placeholder="Enter a body"
+            value={postBody}
+            multiline
+            textAlignVertical='top'
+            onChangeText={(text) => setPostBody(text)}
+          />
+        </View>
+        <Button
+          title={isPosting ? 'Posting...' : 'Add Post'}
+          onPress={handleAddPost}
+          disabled={isPosting}
         />
       </View>
     </SafeAreaView>
   )
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 5,
     backgroundColor: 'plum',
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+    justifyContent: 'center',
   },
-  listContainer: {
-    flex: 1,
-    paddingHorizontal: 16
-  },
-  card: {
+  form: {
     backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
     borderWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderRadius: 5,
+    ...Platform.select({
+      ios: {
+        shadowColor: 'black',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+    gap: 20
   },
-  titleText: {
+  title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
   },
-  bodyText: {
+  label: {
     fontSize: 16,
-    color: 'gray',
+    marginBottom: 5,
   },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'blue',
-    padding: 10
-  },
-  separator: {
-    height: 10,
-  },
-  emptyListText: {
+  input: {
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     fontSize: 16,
-    color: 'gray',
-    padding: 10
+    borderRadius: 5,
   },
-  footerText: {
+  multilineInput: {
+    borderColor: 'gray',
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     fontSize: 16,
-    color: 'gray',
-    padding: 10,
-    textAlign: 'center'
+    borderRadius: 5,
+    minHeight: 100,
   }
 })
