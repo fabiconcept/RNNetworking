@@ -1,7 +1,6 @@
 import { API_URL } from '@/lib';
 import { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Platform } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { View, Text, StyleSheet, TextInput, Button, Platform, StatusBar, SafeAreaView } from 'react-native'
 
 export default function explore() {
   const [postTitle, setPostTitle] = useState('');
@@ -26,7 +25,7 @@ export default function explore() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, styles.safeConatiner]}>
       <Text style={styles.title}>Create a new post</Text>
       <View style={styles.form}>
         <View>
@@ -66,6 +65,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 20,
     justifyContent: 'center',
+  },
+  safeConatiner: {
+    flex: 1,
+    paddingTop: StatusBar.currentHeight,
   },
   form: {
     backgroundColor: 'white',

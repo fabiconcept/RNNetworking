@@ -1,7 +1,6 @@
 import { API_URL } from '@/lib';
 import { Fragment, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, Button, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, TextInput, Button, Platform, StatusBar, SafeAreaView, ScrollView } from 'react-native';
 
 interface Post {
   id: number,
@@ -38,7 +37,7 @@ export default function index() {
     } catch (error) {
       console.error(error);
       setError('Failed to add post');
-    }finally{
+    } finally {
       setIsPosting(false);
     }
   }
@@ -71,9 +70,9 @@ export default function index() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator 
-          size={"large"} 
-          color={"#0000ff"} 
+        <ActivityIndicator
+          size={"large"}
+          color={"#0000ff"}
         />
         <Text>Carregando...</Text>
       </View>
@@ -81,62 +80,59 @@ export default function index() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      {error ? (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) 
-      :
-      <Fragment>
-        <View style={styles.form}>
-          <View>
-            <Text style={styles.label}>Post Title:</Text>
-            <TextInput
-              style={[styles.input]}
-              placeholder="Enter a title"
-              value={postTitle}
-              onChangeText={(text) => setPostTitle(text)}
-            />
+    <SafeAreaView style={[styles.container, styles.safeConatiner]}>
+        {error ? (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{error}</Text>
           </View>
-          <View>
-            <Text style={styles.label}>Post Body:</Text>
-            <TextInput
-              style={[styles.input, styles.multilineInput]}
-              placeholder="Enter a body"
-              value={postBody}
-              multiline
-              textAlignVertical='top'
-              onChangeText={(text) => setPostBody(text)}
-            />
-          </View>
-          <Button
-            title={isPosting ? 'Posting...' : 'Add Post'}
-            onPress={handleAddPost}
-            disabled={isPosting}
-          />
-        </View>
-        <View>
-          <FlatList
-            data={postList}
-            renderItem={({ item }) => (
-              <View key={item.id} style={styles.card}>
-                <Text style={styles.titleText}>{item.id}{`)`} - {item.title}</Text>
-                <Text style={styles.bodyText}>{item.body}</Text>
-              </View>
-            )}
-            keyExtractor={(item) => item.id.toString()}
-            ListHeaderComponent={() => <Text style={styles.headerText}>
-              Posts List
-            </Text>}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-            ListEmptyComponent={() => <Text style={styles.emptyListText}>No posts found</Text>}
-            ListFooterComponent={() => <Text style={styles.footerText}>End of posts</Text>}
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-          />
-        </View>
-      </Fragment>}
+        )
+          :
+          <Fragment>
+            <View>
+              <FlatList
+                data={postList}
+                renderItem={({ item }) => (
+                  <View key={item.id} style={styles.card}>
+                    <Text style={styles.titleText}>{item.id}{`)`} - {item.title}</Text>
+                    <Text style={styles.bodyText}>{item.body}</Text>
+                  </View>
+                )}
+                keyExtractor={(item) => item.id.toString()}
+                ListHeaderComponent={() => <View style={styles.form}>
+                <View>
+                  <Text style={styles.label}>Post Title:</Text>
+                  <TextInput
+                    style={[styles.input]}
+                    placeholder="Enter a title"
+                    value={postTitle}
+                    onChangeText={(text) => setPostTitle(text)}
+                  />
+                </View>
+                <View>
+                  <Text style={styles.label}>Post Body:</Text>
+                  <TextInput
+                    style={[styles.input, styles.multilineInput]}
+                    placeholder="Enter a body"
+                    value={postBody}
+                    multiline
+                    textAlignVertical='top'
+                    onChangeText={(text) => setPostBody(text)}
+                  />
+                </View>
+                <Button
+                  title={isPosting ? 'Posting...' : 'Add Post'}
+                  onPress={handleAddPost}
+                  disabled={isPosting}
+                />
+              </View>}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                ListEmptyComponent={() => <Text style={styles.emptyListText}>No posts found</Text>}
+                ListFooterComponent={() => <Text style={styles.footerText}>End of posts</Text>}
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+              />
+            </View>
+          </Fragment>}
     </SafeAreaView>
   )
 }
@@ -147,6 +143,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 5,
     backgroundColor: 'plum',
+  },
+  safeConatiner: {
+    flex: 1,
+    paddingTop: StatusBar.currentHeight,
   },
   listContainer: {
     flex: 1,
@@ -252,5 +252,5 @@ const styles = StyleSheet.create({
     color: "#D8000C",
     fontSize: 16,
     textAlign: "center"
-  }
+  } 
 })
